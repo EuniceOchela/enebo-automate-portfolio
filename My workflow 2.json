@@ -1,0 +1,357 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "188a23c3-a344-4bca-ae07-67b37633a151",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aa25d43d-1034-4471-88a7-d4c139e61884",
+      "name": "Webhook",
+      "webhookId": "188a23c3-a344-4bca-ae07-67b37633a151"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $json.body.data.fields[2].value }}",
+        "additionalFields": {
+          "firstName": "={{ $json.body.data.fields[0].value }}",
+          "lastName": "={{ $json.body.data.fields[1].value }}",
+          "phoneNumber": "={{ $json.body.data.fields[3].value }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "3ee33153-b08f-42c2-9245-67d50c3c41ea",
+      "name": "Create or update a contact",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "geKrdeVxGuMrnhea",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "deal",
+        "stage": "appointmentscheduled",
+        "additionalFields": {
+          "associatedVids": "={{ $('Create or update a contact').item.json.vid }}",
+          "description": "={{ $('Webhook').item.json.body.data.fields[4].value }} {{ $('Webhook').item.json.body.data.fields[5].value }}",
+          "dealName": "={{ $json.properties.firstname.value }} {{ $json.properties.lastname.value }}",
+          "dealOwner": {
+            "__rl": true,
+            "value": 91542096,
+            "mode": "list",
+            "cachedResultName": "euniceochela363@gmail.com"
+          },
+          "pipeline": "default"
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "295d37e0-52f2-4550-a4b3-1647947d4c66",
+      "name": "Create a deal",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "xgge17AOTuB1jBGL",
+          "name": "HubSpot account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        272
+      ],
+      "id": "b1476291-3513-4ef7-b152-b63ebf8086f0",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "deal",
+        "operation": "getAll",
+        "filters": {
+          "includeAssociations": true,
+          "properties": [
+            "dealstage",
+            "amount",
+            "dealname"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        272
+      ],
+      "id": "748ecef2-f7d3-4238-90e0-e89c5a7a89e4",
+      "name": "Get many deals",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "xgge17AOTuB1jBGL",
+          "name": "HubSpot account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a800f47a-6640-479d-947e-1b315f19174b",
+              "leftValue": "={{ $json.properties.dealstage.value }}",
+              "rightValue": "decisionmakerboughtin",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "109d51d7-d609-41a2-a3f6-123e19f71aa7",
+              "leftValue": "={{ $json.properties.onboarding_email_sent.value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "759636d2-0f5f-4fdd-8f1a-e4049329395d",
+              "leftValue": "={{ $json.associations.associatedVids.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        272
+      ],
+      "id": "f58442ef-bf5c-46f8-843d-a5ac1ba3f73a",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "get",
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.associations.associatedVids[0] }}",
+          "mode": "id"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        256
+      ],
+      "id": "6126b551-537d-418d-a7ab-fd7e64ca3920",
+      "name": "Get a contact",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "xgge17AOTuB1jBGL",
+          "name": "HubSpot account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.properties.email.value }}",
+        "subject": "=Welcome, {{ $json.properties.firstname.value }}!\nLet's get you set up",
+        "message": "=Hi {{ $json.properties.firstname.value }},\n\nWelcome aboard! I'm thrilled to have you as a client.\n\nHere's what happens next:\n1. Fill out your intake form: https://tally.so/r/Ek9822\n2. Book your kickoff call: https://calendar.app.google/DNenMvMLiKeAGKJCA\n\nLooking forward to working together!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        256
+      ],
+      "id": "451d97d8-60a2-43bc-a3a7-4a07fbd97355",
+      "name": "Send a message",
+      "webhookId": "890496b9-d9df-4db6-b87a-b3c0a69c829e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1RuqzSgz3luCRg1a",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "deal",
+        "operation": "update",
+        "dealId": {
+          "__rl": true,
+          "value": "={{ $('Filter').item.json.dealId }}",
+          "mode": "id"
+        },
+        "updateFields": {
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "onboarding_email_sent",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        256
+      ],
+      "id": "68d81808-ffc0-4a2d-852f-42e6cdf995df",
+      "name": "Update a deal",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "xgge17AOTuB1jBGL",
+          "name": "HubSpot account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create or update a contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a contact": {
+      "main": [
+        [
+          {
+            "node": "Create a deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many deals": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Get a contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a contact": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update a deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3410d2e7-1688-49b9-9ceb-a468cc11f12f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf66f4bf820478210f08f6f607459a67e476e7ad86a1645462100c8cbb44f618"
+  },
+  "nodeGroups": [],
+  "id": "jxEOqCU7cqDEcID2",
+  "tags": []
+}
