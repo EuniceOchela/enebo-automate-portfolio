@@ -4,16 +4,16 @@ A collection of real n8n automation and CRM workflow case studies, built to show
 
 ## About
 
-I'm Eunice Ochela — a Customer Support & CRM Automation Specialist helping businesses save time and reduce manual work through practical, well-mapped workflows.
+I'm Eunice Ochela, a Customer Support & CRM Automation Specialist helping businesses save time and reduce manual work through practical, well-mapped workflows.
 
-Each case study in this repo represents a simulated (or real) client scenario, solved end-to-end: from the business problem, to the workflow design, to the tools connected.
+Each case study in this repo represents a real client scenario, solved end-to-end: from the business problem, to the workflow design, to the tools connected.
 
 ---
 
 ## Case Study 1: Client Onboarding & Follow-Up Automation
 
 **The Problem:**
-A business collecting leads through a form had no automated way to move new contacts into their CRM, track deal progress, or follow up once a deal closed — everything relied on manual entry and memory.
+A business collecting leads through a form had no automated way to move new contacts into their CRM, track deal progress, or follow up once a deal closed, everything relied on manual entry and memory.
 
 **The Solution:**
 Two connected n8n workflows that handle the full journey from lead capture to onboarding:
